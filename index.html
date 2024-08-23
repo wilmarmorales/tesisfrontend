@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        html {
+            font-size: 16px;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            display: flex;
+        }
+        .sidebar {
+            width: 15.625rem;
+            background-color: #333;
+            color: white;
+            height: 100vh;
+            transition: all 0.3s;
+        }
+        .sidebar.hidden {
+            margin-left: -15.625rem;
+        }
+        .content {
+            flex: 1;
+            padding: 1.25rem;
+        }
+        .toggle-btn {
+            background-color: #444;
+            color: white;
+            border: none;
+            padding: 0.625rem 0.9375rem;
+            cursor: pointer;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .menu-btn {
+            display: block;
+            width: 100%;
+            padding: 0.625rem;
+            border: none;
+            background-color: #444;
+            color: white;
+            text-align: center;
+            cursor: pointer;
+        }
+        .menu-btn:hover {
+            background-color: #555;
+        }
+        .logo {
+            text-align: center;
+            padding: 1.25rem 0;
+        }
+        .logo img {
+            max-width: 80%;
+            height: auto;
+        }
+        .charts-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.25rem;
+        }
+        .chart-container {
+            width: 48%;
+            height: 18.75rem;
+        }
+        .control-buttons-container {
+            width: 48%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .control-buttons {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+        .control-btn {
+            padding: 0.625rem 1.25rem;
+            font-size: 1rem;
+            cursor: pointer;
+            margin: 0 0.625rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="ruta_a_tu_logo.png" alt="Logo">
+            </div>
+            <button class="menu-btn">En línea</button>
+            <button class="menu-btn">Configuración</button>
+        </div>
+        <div class="content">
+            <button class="toggle-btn" id="toggleBtn">≡</button>
+            
+            <div class="charts-row">
+                <div class="chart-container">
+                    <canvas id="chart1"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="chart2"></canvas>
+                </div>
+            </div>
+            
+            <div class="charts-row">
+                <div class="chart-container">
+                    <canvas id="chart3"></canvas>
+                </div>
+                <div class="control-buttons-container">
+                    <div class="control-buttons">
+                        <button id="startBtn" class="control-btn">Start</button>
+                        <button id="stopBtn" class="control-btn">Stop</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const toggleBtn = document.getElementById('toggleBtn');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('hidden');
+        });
+
+        // Configuración de las gráficas
+        const chartConfig = {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Datos',
+                    data: [],
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        type: 'linear',
+                        position: 'bottom'
+                    }
+                }
+            }
+        };
+
+        const chart1 = new Chart(document.getElementById('chart1'), {...chartConfig});
+        const chart2 = new Chart(document.getElementById('chart2'), {...chartConfig});
+        const chart3 = new Chart(document.getElementById('chart3'), {...chartConfig});
+
+        let intervalId;
+
+        startBtn.addEventListener('click', () => {
+            intervalId = setInterval(() => {
+                const newData = Math.random() * 100;
+                const newLabel = chart1.data.labels.length;
+                
+                [chart1, chart2, chart3].forEach(chart => {
+                    chart.data.labels.push(newLabel);
+                    chart.data.datasets[0].data.push(newData);
+                    if (chart.data.labels.length > 20) {
+                        chart.data.labels.shift();
+                        chart.data.datasets[0].data.shift();
+                    }
+                    chart.update();
+                });
+            }, 1000);
+        });
+
+        stopBtn.addEventListener('click', () => {
+            clearInterval(intervalId);
+        });
+    </script>
+</body>
+</html>
